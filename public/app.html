@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Triagem MediSUS - Sistema de Triagem Inteligente</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header */
+    header {
+      background: white;
+      border-radius: 16px;
+      padding: 24px 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .logo h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    .logo span {
+      font-size: 14px;
+      color: #666;
+      font-weight: 400;
+    }
+
+    .header-badge {
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .user-info {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .user-info strong {
+      color: #333;
+    }
+
+    .btn-logout {
+      background: #f5f5f5;
+      color: #666;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover {
+      background: #e0e0e0;
+      color: #333;
+    }
+
+    /* Main Content */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.5fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title::before {
+      content: '';
+      width: 4px;
+      height: 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 2px;
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #555;
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-group textarea {
+      min-height: 150px;
+      resize: vertical;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 500px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Button */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: #f5f5f5;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e0;
+    }
+
+    /* Loading */
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Results Panel */
+    .results-panel {
+      display: none;
+    }
+
+    .results-panel.active {
+      display: block;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #888;
+    }
+
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: #666;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+    }
+
+    /* Manchester Colors */
+    .risk-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .risk-vermelho {
+      background: #ffebee;
+      color: #c62828;
+      border: 2px solid #ef5350;
+    }
+
+    .risk-laranja {
+      background: #fff3e0;
+      color: #e65100;
+      border: 2px solid #ff9800;
+    }
+
+    .risk-amarelo {
+      background: #fffde7;
+      color: #f9a825;
+      border: 2px solid #ffeb3b;
+    }
+
+    .risk-verde {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 2px solid #66bb6a;
+    }
+
+    .risk-azul {
+      background: #e3f2fd;
+      color: #1565c0;
+      border: 2px solid #42a5f5;
+    }
+
+    /* Result Sections */
+    .result-section {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .result-section h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .result-section ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .result-section li {
+      padding: 8px 0;
+      border-bottom: 1px solid #e0e0e0;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .result-section li:last-child {
+      border-bottom: none;
+    }
+
+    .result-section p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #555;
+    }
+
+    /* Diagnosis Card */
+    .diagnosis-card {
+      background: white;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+
+    .diagnosis-card.principal {
+      border-color: #667eea;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+    }
+
+    .diagnosis-card h5 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 4px;
+    }
+
+    .diagnosis-card .cid {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .diagnosis-card .confidence {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .diagnosis-card .justification {
+      font-size: 14px;
+      color: #555;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    /* Prescription Table */
+    .prescription-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .prescription-table th,
+    .prescription-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .prescription-table th {
+      background: #f0f0f0;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .prescription-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 10px 20px;
+      background: #f0f0f0;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover {
+      background: #e0e0e0;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Alert */
+    .alert {
+      padding: 16px 20px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+
+    .alert-warning {
+      background: #fff3e0;
+      color: #e65100;
+      border: 1px solid #ffb74d;
+    }
+
+    .alert-info {
+      background: #e3f2fd;
+      color: #1565c0;
+      border: 1px solid #64b5f6;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: rgba(255,255,255,0.8);
+      font-size: 14px;
+    }
+
+    footer a {
+      color: white;
+      text-decoration: none;
+    }
+
+    /* Scrollbar */
+    .results-scroll {
+      max-height: calc(100vh - 200px);
+      overflow-y: auto;
+    }
+
+    .results-scroll::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .results-scroll::-webkit-scrollbar-track {
+      background: #f0f0f0;
+      border-radius: 3px;
+    }
+
+    .results-scroll::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 3px;
+    }
+
+    .results-scroll::-webkit-scrollbar-thumb:hover {
+      background: #999;
+    }
+
+    /* Error state */
+    .error-message {
+      background: #ffebee;
+      color: #c62828;
+      padding: 16px 20px;
+      border-radius: 10px;
+      border: 1px solid #ef5350;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <div class="logo-icon">🏥</div>
+        <div>
+          <h1>Triagem MediSUS</h1>
+          <span>Sistema de Triagem Inteligente para UPAs</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="header-badge">Powered by AI</div>
+        <span class="user-info">Logado como: <strong id="userNameDisplay"></strong></span>
+        <button class="btn-logout" onclick="logout()">Sair</button>
+      </div>
+    </header>
+
+    <div class="main-grid">
+      <!-- Input Panel -->
+      <div class="card">
+        <h2 class="card-title">Dados do Paciente</h2>
+
+        <form id="triageForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nome">Nome do Paciente</label>
+              <input type="text" id="nome" placeholder="Nome completo">
+            </div>
+            <div class="form-group">
+              <label for="idade">Idade</label>
+              <input type="text" id="idade" placeholder="Ex: 45 anos">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="sexo">Sexo</label>
+              <select id="sexo">
+                <option value="">Selecione</option>
+                <option value="masculino">Masculino</option>
+                <option value="feminino">Feminino</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="sinaisVitais">Sinais Vitais</label>
+              <input type="text" id="sinaisVitais" placeholder="PA, FC, FR, Temp, SpO2">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="queixaPrincipal">Queixa Principal</label>
+            <input type="text" id="queixaPrincipal" placeholder="Ex: Dor no peito há 2 horas">
+          </div>
+
+          <div class="form-group">
+            <label for="historiaAtual">História da Doenca Atual</label>
+            <textarea id="historiaAtual" placeholder="Descreva os sintomas, quando começaram, evolução, fatores de melhora/piora, sintomas associados..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="comorbidades">Comorbidades / Medicações em Uso</label>
+            <input type="text" id="comorbidades" placeholder="Ex: Hipertensão, Diabetes. Usa Losartana 50mg, Metformina 850mg">
+          </div>
+
+          <div class="form-group">
+            <label for="alergias">Alergias</label>
+            <input type="text" id="alergias" placeholder="Ex: Dipirona, Penicilina">
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="analyzeBtn">
+            <span id="btnText">Analisar Triagem</span>
+            <div class="spinner" id="btnSpinner" style="display: none;"></div>
+          </button>
+        </form>
+
+        <div class="alert alert-warning" style="margin-top: 20px;">
+          <strong>Aviso:</strong> Este sistema é um assistente de apoio a decisao clinica. O diagnostico final e a conduta devem ser validados por um medico.
+        </div>
+      </div>
+
+      <!-- Results Panel -->
+      <div class="card">
+        <h2 class="card-title">Resultado da Analise</h2>
+
+        <div id="emptyState" class="empty-state">
+          <div class="empty-state-icon">📋</div>
+          <h3>Aguardando analise</h3>
+          <p>Preencha os dados do paciente e clique em "Analisar Triagem"</p>
+        </div>
+
+        <div id="errorState" class="error-message" style="display: none;"></div>
+
+        <div id="resultsPanel" class="results-panel">
+          <div class="results-scroll">
+            <!-- Classification Risk -->
+            <div id="riskSection" class="result-section" style="text-align: center;">
+              <h4>Classificacao de Risco Manchester</h4>
+              <div id="riskBadge" class="risk-badge"></div>
+              <p id="riskJustification" style="margin-top: 12px;"></p>
+              <p id="riskTime" style="font-weight: 600; margin-top: 8px;"></p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+              <button class="tab-btn active" data-tab="diagnostico">Diagnostico</button>
+              <button class="tab-btn" data-tab="conduta">Conduta</button>
+              <button class="tab-btn" data-tab="exames">Exames</button>
+              <button class="tab-btn" data-tab="prescricao">Prescricao</button>
+              <button class="tab-btn" data-tab="anamnese">Anamnese</button>
+            </div>
+
+            <!-- Tab: Diagnostico -->
+            <div id="tab-diagnostico" class="tab-content active">
+              <div id="diagnosticoPrincipal"></div>
+              <h4 style="margin: 16px 0 12px; font-size: 14px; color: #666;">Diagnosticos Diferenciais</h4>
+              <div id="diagnosticosDiferenciais"></div>
+            </div>
+
+            <!-- Tab: Conduta -->
+            <div id="tab-conduta" class="tab-content">
+              <div class="result-section">
+                <h4>Decisao Sugerida</h4>
+                <p id="decisaoSugerida"></p>
+                <p id="justificativaDecisao" style="margin-top: 8px;"></p>
+              </div>
+              <div class="result-section">
+                <h4>Medidas Imediatas</h4>
+                <ul id="medidasGerais"></ul>
+              </div>
+              <div class="result-section">
+                <h4>Tratamento Sintomatico</h4>
+                <ul id="tratamentoSintomatico"></ul>
+              </div>
+              <div class="result-section">
+                <h4>Orientacoes de Alta</h4>
+                <ul id="cuidadosEmCasa"></ul>
+                <h4 style="margin-top: 16px;">Motivos para Retornar</h4>
+                <ul id="motivosRetorno"></ul>
+              </div>
+            </div>
+
+            <!-- Tab: Exames -->
+            <div id="tab-exames" class="tab-content">
+              <div class="result-section">
+                <h4>Exames Laboratoriais - Primeira Linha</h4>
+                <ul id="examesLab1"></ul>
+              </div>
+              <div class="result-section">
+                <h4>Exames Laboratoriais - Segunda Linha</h4>
+                <ul id="examesLab2"></ul>
+              </div>
+              <div class="result-section">
+                <h4>Exames de Imagem</h4>
+                <ul id="examesImagem"></ul>
+                <p id="urgenciaImagem" style="margin-top: 8px; font-weight: 500;"></p>
+              </div>
+              <div class="result-section">
+                <h4>Exame Fisico Direcionado</h4>
+                <div id="exameFisico"></div>
+              </div>
+            </div>
+
+            <!-- Tab: Prescricao -->
+            <div id="tab-prescricao" class="tab-content">
+              <div class="result-section">
+                <h4>Prescricao Hospitalar</h4>
+                <div style="overflow-x: auto;">
+                  <table class="prescription-table" id="prescricaoHospitalar">
+                    <thead>
+                      <tr>
+                        <th>Medicamento</th>
+                        <th>Dose</th>
+                        <th>Via</th>
+                        <th>Frequencia</th>
+                        <th>Duracao</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="result-section">
+                <h4>Prescricao Ambulatorial</h4>
+                <div style="overflow-x: auto;">
+                  <table class="prescription-table" id="prescricaoAmbulatorial">
+                    <thead>
+                      <tr>
+                        <th>Medicamento</th>
+                        <th>Dose</th>
+                        <th>Via</th>
+                        <th>Frequencia</th>
+                        <th>Duracao</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tab: Anamnese -->
+            <div id="tab-anamnese" class="tab-content">
+              <div class="result-section">
+                <h4>Perguntas Essenciais para Completar a Anamnese</h4>
+                <ul id="perguntasEssenciais"></ul>
+              </div>
+              <div class="result-section">
+                <h4>Evolucao Sugerida</h4>
+                <p id="evolucaoSugerida"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>Triagem MediSUS - Sistema de apoio a decisao clinica para UPAs do SUS</p>
+      <p style="margin-top: 8px; font-size: 12px;">Este sistema nao substitui a avaliacao medica profissional</p>
+    </footer>
+  </div>
+
+  <script>
+    // Verificacao de autenticacao
+    (function checkAuth() {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        window.location.href = '/login.html';
+        return;
+      }
+      // Exibe o nome do usuario
+      const userName = localStorage.getItem('userName') || 'Usuario';
+      document.getElementById('userNameDisplay').textContent = userName;
+    })();
+
+    // Funcao de logout
+    function logout() {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userName');
+      window.location.href = '/login.html';
+    }
+
+    // Tab functionality
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Form submission
+    document.getElementById('triageForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const btnText = document.getElementById('btnText');
+      const btnSpinner = document.getElementById('btnSpinner');
+      const analyzeBtn = document.getElementById('analyzeBtn');
+      const emptyState = document.getElementById('emptyState');
+      const errorState = document.getElementById('errorState');
+      const resultsPanel = document.getElementById('resultsPanel');
+
+      // Build the triage text
+      const nome = document.getElementById('nome').value;
+      const idade = document.getElementById('idade').value;
+      const sexo = document.getElementById('sexo').value;
+      const sinaisVitais = document.getElementById('sinaisVitais').value;
+      const queixaPrincipal = document.getElementById('queixaPrincipal').value;
+      const historiaAtual = document.getElementById('historiaAtual').value;
+      const comorbidades = document.getElementById('comorbidades').value;
+      const alergias = document.getElementById('alergias').value;
+
+      if (!queixaPrincipal && !historiaAtual) {
+        alert('Por favor, preencha pelo menos a queixa principal ou a historia da doenca atual.');
+        return;
+      }
+
+      let text = '';
+      if (nome) text += `Paciente: ${nome}\n`;
+      if (idade) text += `Idade: ${idade}\n`;
+      if (sexo) text += `Sexo: ${sexo}\n`;
+      if (sinaisVitais) text += `Sinais Vitais: ${sinaisVitais}\n`;
+      if (queixaPrincipal) text += `Queixa Principal: ${queixaPrincipal}\n`;
+      if (historiaAtual) text += `Historia: ${historiaAtual}\n`;
+      if (comorbidades) text += `Comorbidades/Medicacoes: ${comorbidades}\n`;
+      if (alergias) text += `Alergias: ${alergias}\n`;
+
+      // Show loading state
+      btnText.textContent = 'Analisando...';
+      btnSpinner.style.display = 'block';
+      analyzeBtn.disabled = true;
+      emptyState.style.display = 'none';
+      errorState.style.display = 'none';
+      resultsPanel.classList.remove('active');
+
+      try {
+        const response = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Erro ao processar a analise');
+        }
+
+        displayResults(data);
+        resultsPanel.classList.add('active');
+
+      } catch (error) {
+        errorState.textContent = 'Erro: ' + error.message;
+        errorState.style.display = 'block';
+        emptyState.style.display = 'block';
+      } finally {
+        btnText.textContent = 'Analisar Triagem';
+        btnSpinner.style.display = 'none';
+        analyzeBtn.disabled = false;
+      }
+    });
+
+    function displayResults(data) {
+      // Risk Classification
+      const riskBadge = document.getElementById('riskBadge');
+      const cor = data.classificacaoRisco?.cor?.toLowerCase() || 'verde';
+      riskBadge.className = 'risk-badge risk-' + cor;
+      riskBadge.innerHTML = `<span style="font-size: 24px;">${getRiskEmoji(cor)}</span> ${cor.toUpperCase()}`;
+      document.getElementById('riskJustification').textContent = data.classificacaoRisco?.justificativa || '';
+      document.getElementById('riskTime').textContent = data.classificacaoRisco?.tempoMaximo ?
+        `Tempo maximo para atendimento: ${data.classificacaoRisco.tempoMaximo}` : '';
+
+      // Main Diagnosis
+      const principal = data.hipotesesDiagnosticas?.principal;
+      if (principal) {
+        document.getElementById('diagnosticoPrincipal').innerHTML = `
+          <div class="diagnosis-card principal">
+            <h5>${principal.diagnostico || 'N/A'}</h5>
+            <span class="cid">${principal.cid10 || 'CID N/A'}</span>
+            <span class="confidence">Confianca: ${principal.confianca || 'N/A'}</span>
+            <p class="justification">${principal.justificativa || ''}</p>
+          </div>
+        `;
+      }
+
+      // Differential Diagnoses
+      const diferenciais = data.hipotesesDiagnosticas?.diferenciais || [];
+      document.getElementById('diagnosticosDiferenciais').innerHTML = diferenciais.map(d => `
+        <div class="diagnosis-card">
+          <h5>${d.diagnostico || 'N/A'}</h5>
+          <span class="cid">${d.cid10 || 'CID N/A'}</span>
+          <p class="justification">${d.justificativa || ''}</p>
+        </div>
+      `).join('');
+
+      // Decision
+      const decisao = data.algoritmoDecisao?.decisaoSugerida || '';
+      const decisaoMap = {
+        'internacao': 'INTERNACAO HOSPITALAR',
+        'observacao': 'OBSERVACAO NA UPA',
+        'ambulatorial': 'TRATAMENTO AMBULATORIAL'
+      };
+      document.getElementById('decisaoSugerida').innerHTML = `<strong>${decisaoMap[decisao] || decisao.toUpperCase()}</strong>`;
+      document.getElementById('justificativaDecisao').textContent = data.algoritmoDecisao?.justificativaDecisao || '';
+
+      // Immediate measures
+      fillList('medidasGerais', data.condutaImediata?.medidasGerais);
+      fillList('tratamentoSintomatico', data.condutaImediata?.tratamentoSintomatico);
+
+      // Orientation
+      fillList('cuidadosEmCasa', data.orientacoesGerais?.cuidadosEmCasa);
+      fillList('motivosRetorno', data.orientacoesGerais?.motivosRetorno);
+
+      // Exams
+      fillList('examesLab1', data.examesComplementares?.laboratoriais?.primeiraLinha);
+      fillList('examesLab2', data.examesComplementares?.laboratoriais?.segundaLinha);
+      fillList('examesImagem', data.examesComplementares?.imagem?.indicados);
+
+      const urgencia = data.examesComplementares?.imagem?.urgencia;
+      document.getElementById('urgenciaImagem').textContent = urgencia ? `Urgencia: ${urgencia.toUpperCase()}` : '';
+
+      // Physical Exam
+      const ef = data.exameFisico;
+      if (ef) {
+        let html = `<p><strong>Estado Geral:</strong> ${ef.estadoGeral || 'N/A'}</p>`;
+        if (ef.inspecao?.observar) html += `<p><strong>Inspecao:</strong> ${ef.inspecao.observar.join(', ')}</p>`;
+        if (ef.ausculta?.observar) html += `<p><strong>Ausculta:</strong> ${ef.ausculta.observar.join(', ')}</p>`;
+        if (ef.palpacao?.observar) html += `<p><strong>Palpacao:</strong> ${ef.palpacao.observar.join(', ')}</p>`;
+        document.getElementById('exameFisico').innerHTML = html;
+      }
+
+      // Prescriptions
+      fillPrescriptionTable('prescricaoHospitalar', data.prescricoes?.medicacoes);
+      fillPrescriptionTable('prescricaoAmbulatorial', data.prescricoes?.prescricaoAmbulatorial);
+
+      // Anamnesis
+      fillList('perguntasEssenciais', data.anamnese?.perguntasEssenciais);
+      document.getElementById('evolucaoSugerida').textContent = data.evolucaoSugerida || '';
+    }
+
+    function fillList(elementId, items) {
+      const el = document.getElementById(elementId);
+      if (!items || items.length === 0) {
+        el.innerHTML = '<li>Nenhuma informacao disponivel</li>';
+        return;
+      }
+      el.innerHTML = items.map(item => `<li>${item}</li>`).join('');
+    }
+
+    function fillPrescriptionTable(tableId, meds) {
+      const tbody = document.querySelector(`#${tableId} tbody`);
+      if (!meds || meds.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Nenhuma prescricao</td></tr>';
+        return;
+      }
+      tbody.innerHTML = meds.map(m => `
+        <tr>
+          <td><strong>${m.medicamento || 'N/A'}</strong></td>
+          <td>${m.dose || 'N/A'}</td>
+          <td>${m.via || 'N/A'}</td>
+          <td>${m.frequencia || 'N/A'}</td>
+          <td>${m.duracao || 'N/A'}</td>
+        </tr>
+      `).join('');
+    }
+
+    function getRiskEmoji(cor) {
+      const emojis = {
+        'vermelho': '🔴',
+        'laranja': '🟠',
+        'amarelo': '🟡',
+        'verde': '🟢',
+        'azul': '🔵'
+      };
+      return emojis[cor] || '⚪';
+    }
+  </script>
+</body>
+</html>

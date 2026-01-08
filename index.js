@@ -1,6 +1,7 @@
 // index.js completo com prompt médico ULTRA APRIMORADO para UPAs do SUS
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 require("dotenv").config();
 
 // Importa a classe OpenAI (versão 5.x)
@@ -21,17 +22,91 @@ app.use((req, res, next) => {
 app.use(cors());
 app.use(express.json());
 
-// Health‐check opcional
-app.get("/", (_req, res) => {
-  res.send("Servidor UPA – rodando ✅");
+// Serve arquivos estáticos da pasta public
+app.use(express.static(path.join(__dirname, "public")));
+
+// ─────── SISTEMA DE AUTENTICACAO ───────
+// Usuarios cadastrados (em producao, usar banco de dados)
+const USERS = {
+  "admin": { password: "admin123", name: "Administrador" },
+  "medico": { password: "medico123", name: "Dr. Medico" },
+  "enfermeiro": { password: "enf123", name: "Enfermeiro(a)" }
+};
+
+// Tokens ativos (em producao, usar Redis ou JWT)
+const activeTokens = new Map();
+
+// Gera token simples
+function generateToken() {
+  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+}
+
+// Rota de login
+app.post("/api/login", (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ error: "Usuario e senha sao obrigatorios" });
+  }
+
+  const user = USERS[username.toLowerCase()];
+
+  if (!user || user.password !== password) {
+    return res.status(401).json({ error: "Usuario ou senha incorretos" });
+  }
+
+  const token = generateToken();
+  activeTokens.set(token, { username, name: user.name, createdAt: Date.now() });
+
+  // Limpa tokens antigos (mais de 24h)
+  for (const [t, data] of activeTokens.entries()) {
+    if (Date.now() - data.createdAt > 24 * 60 * 60 * 1000) {
+      activeTokens.delete(t);
+    }
+  }
+
+  res.json({ success: true, token, userName: user.name });
 });
 
-app.post("/api/analyze", async (req, res) => {
+// Middleware de verificacao de token (opcional para API)
+function verifyToken(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    const token = authHeader.substring(7);
+    if (activeTokens.has(token)) {
+      req.user = activeTokens.get(token);
+    }
+  }
+  next();
+}
+
+app.post("/api/analyze", verifyToken, async (req, res) => {
   try {
     const { text } = req.body;
+
+    // ─────── VALIDACAO DE ENTRADA ───────
     if (!text) {
-      return res.status(400).json({ error: 'Campo "text" é obrigatório.' });
+      return res.status(400).json({ error: 'Campo "text" e obrigatorio.' });
     }
+
+    if (typeof text !== "string") {
+      return res.status(400).json({ error: 'Campo "text" deve ser uma string.' });
+    }
+
+    const trimmedText = text.trim();
+
+    if (trimmedText.length < 10) {
+      return res.status(400).json({ error: 'Descricao muito curta. Forneca mais detalhes sobre o paciente.' });
+    }
+
+    if (trimmedText.length > 10000) {
+      return res.status(400).json({ error: 'Descricao muito longa. Maximo de 10.000 caracteres.' });
+    }
+
+    // Sanitiza caracteres potencialmente perigosos (XSS basico)
+    const sanitizedText = trimmedText
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
 
     // ─────── PROMPT MÉDICO ULTRA POWER APRIMORADO ───────
     const systemPrompt = `
@@ -229,7 +304,7 @@ AGORA ANALISE O CASO APRESENTADO E RETORNE O JSON COMPLETO COM TODA SUA EXPERTIS
          model: "gpt-4o",
          messages: [
            { role: "system", content: systemPrompt },
-           { role: "user", content: "TRIAGEM_FICHA: " + text },
+           { role: "user", content: "TRIAGEM_FICHA: " + sanitizedText },
          ],
          temperature: 0.1,
          response_format: { type: "json_object" },
